@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Dragon Hatch: Cinematic Test</title>
+
+<style>
+:root{
+    --bg:#04020a;
+    --panel:rgba(255,255,255,.08);
+    --border:rgba(255,255,255,.16);
+    --text:#ffffff;
+    --muted:#b9abc9;
+    --gold:#ffd35a;
+
+    --legendary:#b85cff;
+    --mythic:#ffd35a;
+    --ancient:#ff3b2f;
+    --celestial:#57fff2;
+    --emerald:#37ff8b;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    min-height:100vh;
+    font-family:Arial, Helvetica, sans-serif;
+    color:var(--text);
+    background:
+        radial-gradient(circle at top, #321060 0%, transparent 38%),
+        radial-gradient(circle at 15% 85%, #0c2755 0%, transparent 30%),
+        linear-gradient(135deg,#020106,#110720,#030108);
+    overflow-x:hidden;
+}
+
+header{
+    padding:22px;
+    text-align:center;
+    background:rgba(0,0,0,.35);
+    border-bottom:1px solid var(--border);
+    backdrop-filter:blur(14px);
+    position:sticky;
+    top:0;
+    z-index:50;
+}
+
+h1{
+    margin:0;
+    font-size:34px;
+    letter-spacing:1px;
+}
+
+.subtitle{
+    color:var(--muted);
+    margin-top:7px;
+    font-size:14px;
+}
+
+.stats{
+    max-width:850px;
+    margin:18px auto 0;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+}
+
+.stat{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:12px;
+}
+
+.stat b{
+    display:block;
+    font-size:24px;
+    color:var(--gold);
+}
+
+main{
+    max-width:1100px;
+    margin:0 auto;
+    padding:24px;
+}
+
+.layout{
+    display:grid;
+    grid-template-columns:1.05fr .95fr;
+    gap:22px;
+}
+
+.panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:28px;
+    padding:22px;
+    box-shadow:0 25px 70px rgba(0,0,0,.45);
+}
+
+.stage{
+    min-height:650px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+}
+
+.stage::before{
+    content:"";
+    position:absolute;
+    inset:-50%;
+    background:
+        radial-gradient(circle, rgba(255,255,255,.12), transparent 30%),
+        conic-gradient(from 120deg, transparent, rgba(255,255,255,.06), transparent);
+    animation:slowSpin 18s linear infinite;
+    opacity:.35;
+    pointer-events:none;
+}
+
+@keyframes slowSpin{
+    from{transform:rotate(0deg);}
+    to{transform:rotate(360deg);}
+}
+
+.egg{
+    font-size:145px;
+    display:inline-block;
+    cursor:pointer;
+    user-select:none;
+    margin:30px 0 10px;
+    filter:drop-shadow(0 0 35px rgba(255,211,90,.7));
+    animation:eggIdle 2.2s ease-in-out infinite;
+    position:relative;
+    z-index:3;
+}
+
+@keyframes eggIdle{
+    0%,100%{transform:translateY(0) scale(1);}
+    50%{transform:translateY(-10px) scale(1.04);}
+}
+
+.egg.cracking{
+    animation:eggCrack 1.8s ease-in-out forwards;
+}
+
+@keyframes eggCrack{
+    0%{transform:scale(1) rotate(0deg);}
+    10%{transform:scale(1.04) rotate(-6deg);}
+    20%{transform:scale(1.06) rotate(7deg);}
+    32%{transform:scale(1.08) rotate(-10deg);}
+    44%{transform:scale(1.10) rotate(10deg);}
+    58%{transform:scale(1.14) rotate(-14deg);}
+    72%{transform:scale(1.18) rotate(14deg);}
+    86%{transform:scale(1.24) rotate(0deg);}
+    100%{transform:scale(.1) rotate(0deg); opacity:0;}
+}
+
+button{
+    border:none;
+    border-radius:18px;
+    padding:15px 20px;
+    font-size:16px;
+    font-weight:900;
+    cursor:pointer;
+    color:white;
+    background:#6b35ff;
+    transition:.2s;
+}
+
+button:hover{
+    transform:translateY(-2px);
+    filter:brightness(1.12);
+}
+
+.primary{
+    background:linear-gradient(135deg,#ffd35a,#ff8a1c);
+    color:#211200;
+    box-shadow:0 0 28px rgba(255,190,50,.35);
+}
+
+.green{
+    background:linear-gradient(135deg,#1ed86d,#087c3f);
+}
+
+.controls{
+    position:relative;
+    z-index:5;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:15px;
+}
+
+.result{
+    position:relative;
+    z-index:3;
+    margin-top:25px;
+    min-height:330px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.drop-card{
+    width:min(430px,100%);
+    background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.06));
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:26px;
+    padding:16px;
+    box-shadow:0 20px 65px rgba(0,0,0,.55);
+    animation:cardPop .65s ease-out;
+}
+
+@keyframes cardPop{
+    from{transform:scale(.75) translateY(35px);opacity:0;}
+    to{transform:scale(1) translateY(0);opacity:1;}
+}
+
+.drop-img-wrap{
+    width:100%;
+    height:245px;
+    border-radius:22px;
+    overflow:hidden;
+    background:#09050f;
+    position:relative;
+    box-shadow:0 0 45px rgba(255,255,255,.12);
+}
+
+.drop-img-wrap img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    animation:cardBreath 3s ease-in-out infinite;
+    filter:contrast(1.15) saturate(1.2);
+}
+
+@keyframes cardBreath{
+    0%,100%{transform:scale(1.04);}
+    50%{transform:scale(1.12);}
+}
+
+.drop-img-wrap::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+        radial-gradient(circle at 35% 50%, rgba(255,255,255,.14), transparent 35%),
+        linear-gradient(to top, rgba(0,0,0,.55), transparent);
+    animation:mistCard 3s ease-in-out infinite;
+}
+
+@keyframes mistCard{
+    0%,100%{opacity:.35; transform:translateX(-18px);}
+    50%{opacity:.75; transform:translateX(18px);}
+}
+
+.rarity{
+    display:inline-block;
+    padding:8px 15px;
+    border-radius:999px;
+    margin-top:14px;
+    background:rgba(255,255,255,.14);
+    font-weight:900;
+}
+
+.dragon-name{
+    font-size:27px;
+    font-weight:1000;
+    margin-top:10px;
+}
+
+.legendary{color:var(--legendary);}
+.mythic{color:var(--mythic);}
+.ancient{color:var(--ancient);}
+.celestial{color:var(--celestial);}
+.emerald{color:var(--emerald);}
+
+.inventory{
+    max-height:520px;
+    overflow:auto;
+    padding-right:6px;
+}
+
+.item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:12px;
+    border-radius:16px;
+    margin-bottom:10px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.12);
+}
+
+.item small{
+    display:block;
+    color:var(--muted);
+    margin-top:4px;
+}
+
+.thumb{
+    width:70px;
+    height:48px;
+    border-radius:10px;
+    object-fit:cover;
+    margin-right:10px;
+}
+
+.item-left{
+    display:flex;
+    align-items:center;
+}
+
+/* CINEMATIC */
+
+#cinema{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    display:none;
+    background:#010005;
+    overflow:hidden;
+}
+
+#cinema.show{
+    display:block;
+}
+
+.cinema-bg{
+    position:absolute;
+    inset:0;
+    background:
+        radial-gradient(circle at center, rgba(255,255,255,.08), transparent 28%),
+        linear-gradient(180deg,#020006,#080111,#010005);
+}
+
+.cinema-fog{
+    position:absolute;
+    inset:-20%;
+    background:
+        radial-gradient(circle at 20% 70%, rgba(255,255,255,.22), transparent 30%),
+        radial-gradient(circle at 70% 55%, rgba(255,255,255,.16), transparent 34%),
+        radial-gradient(circle at 48% 45%, rgba(255,255,255,.14), transparent 28%);
+    filter:blur(24px);
+    opacity:0;
+    animation:fogIn 6.2s ease-in-out forwards;
+}
+
+@keyframes fogIn{
+    0%{opacity:0; transform:translateX(-140px) scale(1);}
+    20%{opacity:.95;}
+    60%{opacity:.55; transform:translateX(70px) scale(1.08);}
+    100%{opacity:0; transform:translateX(180px) scale(1.18);}
+}
+
+.cinema-crack-light{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:20px;
+    height:20px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    opacity:0;
+    animation:crackLight 2.3s ease-out forwards;
+}
+
+@keyframes crackLight{
+    0%{opacity:0; transform:translate(-50%,-50%) scale(.1);}
+    35%{opacity:.45; transform:translate(-50%,-50%) scale(4);}
+    70%{opacity:1; transform:translate(-50%,-50%) scale(12);}
+    100%{opacity:0; transform:translate(-50%,-50%) scale(35);}
+}
+
+.cinema-eyes{
+    position:absolute;
+    left:50%;
+    top:39%;
+    width:430px;
+    height:90px;
+    transform:translate(-50%,-50%);
+    color:white;
+    opacity:0;
+    animation:eyesOpen 2.6s ease-out forwards;
+    animation-delay:1.65s;
+}
+
+.eye{
+    position:absolute;
+    width:115px;
+    height:34px;
+    border-radius:50%;
+    background:currentColor;
+    box-shadow:0 0 35px currentColor, 0 0 100px currentColor;
+}
+
+.eye.left{
+    left:40px;
+    transform:rotate(5deg);
+}
+
+.eye.right{
+    right:40px;
+    transform:rotate(-5deg);
+}
+
+@keyframes eyesOpen{
+    0%{opacity:0; transform:translate(-50%,-50%) scaleY(.05);}
+    35%{opacity:1; transform:translate(-50%,-50%) scaleY(1);}
+    72%{opacity:1;}
+    100%{opacity:0; transform:translate(-50%,-68%) scaleY(1.25);}
+}
+
+.cinema-silhouette{
+    position:absolute;
+    left:50%;
+    top:63%;
+    width:340px;
+    height:210px;
+    transform:translate(-50%,-50%) scale(.25);
+    background:#000;
+    clip-path:polygon(
+        50% 5%,
+        62% 38%,
+        96% 10%,
+        78% 54%,
+        98% 72%,
+        67% 70%,
+        60% 98%,
+        50% 76%,
+        40% 98%,
+        33% 70%,
+        2% 72%,
+        22% 54%,
+        4% 10%,
+        38% 38%
+    );
+    opacity:0;
+    filter:drop-shadow(0 0 40px currentColor);
+    animation:silhouetteFly 3.1s ease-in-out forwards;
+    animation-delay:2.75s;
+}
+
+@keyframes silhouetteFly{
+    0%{opacity:0; transform:translate(-50%,35%) scale(.15);}
+    25%{opacity:1; transform:translate(-50%,-10%) scale(.75);}
+    55%{opacity:1; transform:translate(-50%,-100%) scale(1.2);}
+    100%{opacity:0; transform:translate(-50%,-190%) scale(1.65);}
+}
+
+.cinema-dragon{
+    position:absolute;
+    left:50%;
+    bottom:4%;
+    width:min(880px,96vw);
+    transform:translateX(-50%) translateY(160px) scale(.82);
+    opacity:0;
+    animation:dragonLandRoar 3.5s ease-out forwards;
+    animation-delay:4.2s;
+}
+
+.cinema-dragon img{
+    width:100%;
+    border-radius:32px;
+    box-shadow:0 0 110px currentColor;
+    filter:contrast(1.2) saturate(1.25) brightness(.92);
+}
+
+@keyframes dragonLandRoar{
+    0%{opacity:0; transform:translateX(-50%) translateY(190px) scale(.62);}
+    22%{opacity:1; transform:translateX(-50%) translateY(0) scale(.95);}
+    35%{opacity:1; transform:translateX(-50%) translateY(18px) scale(1.02);}
+    55%{opacity:1; transform:translateX(-50%) translateY(-12px) scale(1.13);}
+    70%{opacity:1; transform:translateX(-50%) translateY(0) scale(1.05);}
+    100%{opacity:0; transform:translateX(-50%) translateY(-70px) scale(1.18);}
+}
+
+.cinema-breath{
+    position:absolute;
+    left:50%;
+    top:51%;
+    width:520px;
+    height:180px;
+    border-radius:50%;
+    transform:translate(-50%,-50%) scale(.2);
+    filter:blur(24px);
+    opacity:0;
+    animation:breathBlast 2.1s ease-out forwards;
+    animation-delay:5.1s;
+}
+
+@keyframes breathBlast{
+    0%{opacity:0; transform:translate(-50%,-50%) scale(.2);}
+    28%{opacity:.9; transform:translate(-50%,-50%) scale(1);}
+    70%{opacity:.55; transform:translate(-50%,-57%) scale(2.05);}
+    100%{opacity:0; transform:translate(-50%,-64%) scale(3);}
+}
+
+.screen-shake{
+    animation:screenShake .38s linear 7;
+}
+
+@keyframes screenShake{
+    0%{transform:translate(0,0);}
+    20%{transform:translate(10px,-7px);}
+    40%{transform:translate(-8px,8px);}
+    60%{transform:translate(7px,9px);}
+    80%{transform:translate(-9px,-6px);}
+    100%{transform:translate(0,0);}
+}
+
+.flash{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:0;
+    z-index:9998;
+}
+
+.flash.show{
+    animation:flashAnim 1.1s ease-out;
+}
+
+@keyframes flashAnim{
+    0%{opacity:0;}
+    30%{opacity:.9;}
+    100%{opacity:0;}
+}
+
+@media(max-width:850px){
+    .layout{
+        grid-template-columns:1fr;
+    }
+
+    .stats{
+        grid-template-columns:1fr;
+    }
+
+    .controls{
+        grid-template-columns:1fr;
+    }
+
+    .egg{
+        font-size:110px;
+    }
+
+    h1{
+        font-size:26px;
+    }
+
+    .cinema-eyes{
+        width:310px;
+    }
+
+    .eye{
+        width:82px;
+        height:27px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🐉 Dragon Hatch: Cinematic Test</h1>
+    <div class="subtitle">Crack-Ei, Nebel, Augen im Dunkeln, Silhouette, Landung, Roar.</div>
+
+    <div class="stats">
+        <div class="stat"><b id="gold">500</b>Gold</div>
+        <div class="stat"><b id="opened">0</b>Eier geöffnet</div>
+        <div class="stat"><b id="last">-</b>Letzter Drop</div>
+    </div>
+</header>
+
+<main>
+    <div class="layout">
+        <section class="panel stage">
+            <h2>Öffne das Ei</h2>
+
+            <div id="egg" class="egg">🥚</div>
+
+            <div class="controls">
+                <button class="primary" onclick="hatch()">Ei öffnen - 10 Gold</button>
+                <button class="green" onclick="sellAll()">Alle verkaufen</button>
+            </div>
+
+            <div id="result" class="result">
+                <div class="drop-card">
+                    <div style="font-size:64px;">🐲</div>
+                    <div class="dragon-name">Bereit</div>
+                    <div class="rarity">Tippe auf das Ei</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>📦 Inventar</h2>
+            <div id="inventory" class="inventory"></div>
+        </section>
+    </div>
+</main>
+
+<div id="flash" class="flash"></div>
+
+<div id="cinema">
+    <div class="cinema-bg"></div>
+    <div class="cinema-fog"></div>
+    <div id="crackLight" class="cinema-crack-light"></div>
+
+    <div id="cinemaEyes" class="cinema-eyes">
+        <div class="eye left"></div>
+        <div class="eye right"></div>
+    </div>
+
+    <div id="silhouette" class="cinema-silhouette"></div>
+
+    <div id="cinemaDragon" class="cinema-dragon">
+        
+    </div>
+
+    <div id="breath" class="cinema-breath"></div>
+</div>
+
+<script>
+let gold = 500;
+let opened = 0;
+let inventory = [];
+
+const dragons = [
+    {
+        name:"Berserker-Drache",
+        rarity:"legendary",
+        image:"berserker-dragon.png",
+        value:500,
+        color:"#b85cff",
+        chance:36
+    },
+    {
+        name:"Thunder King Dragon",
+        rarity:"ancient",
+        image:"thunder-dragon.png",
+        value:1600,
+        color:"#4aa3ff",
+        chance:24
+    },
+    {
+        name:"Solar Emperor Dragon",
+        rarity:"mythic",
+        image:"solar-dragon.png",
+        value:2400,
+        color:"#ffd35a",
+        chance:18
+    },
+    {
+        name:"Celestial Starfall Dragon",
+        rarity:"celestial",
+        image:"celestial-dragon.png",
+        value:5000,
+        color:"#57fff2",
+        chance:10
+    },
+    {
+        name:"Emerald Guardian Dragon",
+        rarity:"emerald",
+        image:"emerald-dragon.png",
+        value:900,
+        color:"#37ff8b",
+        chance:12
+    }
+];
+
+function pickDragon(){
+    let total = dragons.reduce((sum,d)=>sum+d.chance,0);
+    let roll = Math.random() * total;
+
+    for(let d of dragons){
+        if(roll < d.chance){
+            return d;
+        }
+        roll -= d.chance;
+    }
+
+    return dragons[0];
+}
+
+function hatch(){
+    if(gold < 10){
+        alert("Zu wenig Gold.");
+        return;
+    }
+
+    gold -= 10;
+    opened++;
+
+    const dragon = pickDragon();
+    inventory.unshift(dragon);
+
+    startEggAnimation(dragon);
+    update();
+}
+
+function startEggAnimation(dragon){
+    const egg = document.getElementById("egg");
+
+    egg.textContent = "🥚";
+    egg.classList.remove("cracking");
+    void egg.offsetWidth;
+    egg.classList.add("cracking");
+
+    setTimeout(()=>{
+        runCinema(dragon);
+    },900);
+}
+
+function runCinema(dragon){
+    playRoar(dragon);
+
+    const cinema = document.getElementById("cinema");
+    const cinemaImg = document.getElementById("cinemaImg");
+    const eyes = document.getElementById("cinemaEyes");
+    const silhouette = document.getElementById("silhouette");
+    const dragonBox = document.getElementById("cinemaDragon");
+    const breath = document.getElementById("breath");
+    const crackLight = document.getElementById("crackLight");
+
+    cinema.classList.remove("show");
+    void cinema.offsetWidth;
+    cinema.classList.add("show");
+
+    cinemaImg.src = dragon.image;
+
+    eyes.style.color = dragon.color;
+    silhouette.style.color = dragon.color;
+    dragonBox.style.color = dragon.color;
+
+    crackLight.style.background =
+        "radial-gradient(circle, " + dragon.color + " 0%, transparent 60%)";
+
+    breath.style.background =
+        "radial-gradient(circle, " + dragon.color + " 0%, transparent 60%), radial-gradient(circle, rgba(255,255,255,.55), transparent 70%)";
+
+    document.body.classList.remove("screen-shake");
+    void document.body.offsetWidth;
+    document.body.classList.add("screen-shake");
+
+    setTimeout(()=>{
+        cinema.classList.remove("show");
+        document.body.classList.remove("screen-shake");
+        showDrop(dragon);
+    },7800);
+}
+
+function showDrop(dragon){
+    const result = document.getElementById("result");
+
+    result.innerHTML = `
+        <div class="drop-card ${dragon.rarity}">
+            <div class="drop-img-wrap" style="box-shadow:0 0 55px ${dragon.color};">
+                ${dragon.image}Bild fehlt: ${dragon.image}</div>';">
+            </div>
+            <div class="rarity ${dragon.rarity}">
+                ${dragon.rarity.toUpperCase()}
+            </div>
+            <div class="dragon-name ${dragon.rarity}">
+                ${dragon.name}
+            </div>
+            <p style="color:#b9abc9;margin-bottom:0;">
+                Wert: ${dragon.value} Gold
+            </p>
+        </div>
+    `;
+
+    document.getElementById("last").textContent = dragon.rarity.toUpperCase();
+
+    flash(dragon.color);
+}
+
+function flash(color){
+    const f = document.getElementById("flash");
+
+    f.style.background = color;
+    f.classList.remove("show");
+    void f.offsetWidth;
+    f.classList.add("show");
+}
+
+function sellAll(){
+    let earned = inventory.reduce((sum,d)=>sum+d.value,0);
+    gold += earned;
+    inventory = [];
+    update();
+}
+
+function update(){
+    document.getElementById("gold").textContent = gold;
+    document.getElementById("opened").textContent = opened;
+
+    const box = document.getElementById("inventory");
+
+    if(inventory.length === 0){
+        box.innerHTML = "<p style='color:#b9abc9;'>Noch keine Drachen.</p>";
+        return;
+    }
+
+    box.innerHTML = inventory.map((d,index)=>`
+        <div class="item">
+            <div class="item-left">
+                ${d.image}
+                <div>
+                    <b class="${d.rarity}">${d.name}</b>
+                    <small>${d.rarity.toUpperCase()} • ${d.value} Gold</small>
+                </div>
+            </div>
+            <button onclick="sellOne(${index})">Sell</button>
+        </div>
+    `).join("");
+}
+
+function sellOne(index){
+    if(!inventory[index]) return;
+
+    gold += inventory[index].value;
+    inventory.splice(index,1);
+    update();
+}
+
+function playRoar(dragon){
+    try{
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioCtx();
+
+        const now = ctx.currentTime;
+
+        const bass = ctx.createOscillator();
+        const bassGain = ctx.createGain();
+
+        bass.type = "sawtooth";
+        bass.frequency.setValueAtTime(70, now);
+        bass.frequency.exponentialRampToValueAtTime(38, now + 1.8);
+
+        bassGain.gain.setValueAtTime(.0001, now);
+        bassGain.gain.exponentialRampToValueAtTime(.23, now + .15);
+        bassGain.gain.exponentialRampToValueAtTime(.0001, now + 2.1);
+
+        bass.connect(bassGain);
+        bassGain.connect(ctx.destination);
+
+        bass.start(now);
+        bass.stop(now + 2.2);
+
+        const scream = ctx.createOscillator();
+        const screamGain = ctx.createGain();
+
+        scream.type = "square";
+        scream.frequency.setValueAtTime(180, now + .6);
+        scream.frequency.exponentialRampToValueAtTime(520, now + 1.3);
+        scream.frequency.exponentialRampToValueAtTime(90, now + 2.3);
+
+        screamGain.gain.setValueAtTime(.0001, now + .55);
+        screamGain.gain.exponentialRampToValueAtTime(.16, now + .85);
+        screamGain.gain.exponentialRampToValueAtTime(.0001, now + 2.6);
+
+        scream.connect(screamGain);
+        screamGain.connect(ctx.destination);
+
+        scream.start(now + .55);
+        scream.stop(now + 2.7);
+    }catch(e){}
+}
+
+document.getElementById("egg").addEventListener("click", hatch);
+
+update();
+</script>
+
+</body>
+</html>
